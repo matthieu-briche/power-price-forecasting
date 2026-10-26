@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "powerfc"
+version = "0.1.0"
+description = "Day-ahead electricity price forecasting for European power markets: features, ML models, walk-forward back-testing and trading evaluation."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Matthieu Briche" }]
+license = { text = "MIT" }
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scikit-learn>=1.4",
+    "pymongo>=4.6,<4.9",  # mongomock (unit tests) is not compatible with 4.9+ bulk_write
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "mongomock>=4.1", "ruff>=0.5"]
+
+[project.scripts]
+powerfc = "powerfc.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]

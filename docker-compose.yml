@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      retries: 10
+
+  pipeline:
+    build: .
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      SOURCE: ${SOURCE:-synthetic}   # set SOURCE=energy-charts for real DE-LU data
+    entrypoint: ["bash", "scripts/run_pipeline.sh"]
+    volumes: ["./reports:/app/reports"]
+
+volumes:
+  mongo-data:
