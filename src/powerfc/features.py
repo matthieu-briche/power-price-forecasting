@@ -26,8 +26,8 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     # Calendar (local market time).
     X["hour"] = local.hour
-    X["dow"] = local.dayofweek
-    X["is_weekend"] = (local.dayofweek >= 5).astype(int)
+    X["dow"] = local.day_of_week
+    X["is_weekend"] = (local.day_of_week >= 5).astype(int)
     X["month"] = local.month
 
     # Fundamentals for the delivery hour (day-ahead forecasts in production).

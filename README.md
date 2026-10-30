@@ -10,12 +10,12 @@ It covers the whole model lifecycle (data ingestion, feature engineering, traini
 walk-forward back-testing, persistence and reporting) with production practices: typed
 Python package, MongoDB storage, Docker, GitHub Actions CI and leakage tests.
 
-![Back-test results](reports/backtest.png)
+![Back-test on real DE-LU data](reports/real/backtest.png)
 
-> **The numbers in this README come from the bundled synthetic dataset** (see
-> [Data](#data)). Its fundamentals are perfect "forecasts" and the price is generated from
-> them, so the errors are far smaller than on real data. Run `make real` to reproduce the
-> study on actual DE-LU prices.
+> **Headline numbers come from real DE-LU market data** (Energy-Charts, 2023 – Sept 2025,
+> last 178 days held out). The fundamentals used as features are *realised* load, wind and
+> solar rather than day-ahead forecasts, which flatters every model a little (see
+> [Data](#data)). Results on the bundled synthetic dataset are given for reference.
 
 ---
 
@@ -70,7 +70,31 @@ it drives. `trading.py` picks a charge window and a later discharge window from 
 MAE can differ a lot in capture ratio, because what matters is ranking the cheap and
 expensive hours correctly.
 
-## Results (synthetic data, 179-day walk-forward test)
+## Results
+
+### Real market data (DE-LU, 178-day walk-forward test ending Sept 2025)
+
+| Model | MAE (EUR/MWh) | RMSE | sMAPE | rMAE vs naive | Battery PnL (EUR) | Capture ratio |
+|---|---:|---:|---:|---:|---:|---:|
+| Naive | 23.0 | 36.4 | 57.1% | 1.00 | 40,939 | 94.3% |
+| Ridge | 15.4 | 21.8 | 44.1% | 0.67 | **42,548** | **98.0%** |
+| Gradient boosting | **12.1** | **19.7** | **41.6%** | **0.53** | 42,336 | 97.5% |
+
+What the real data shows:
+
+* **Gradient boosting halves the naive error** (rMAE 0.53) and has the lowest MAE and RMSE.
+* **Lowest error is not highest PnL.** Ridge captures more of the perfect-foresight battery
+  PnL than gradient boosting despite a 27% higher MAE: the battery only needs the cheap and
+  expensive hours ranked correctly, not the price level.
+* **The naive benchmark already captures 94% of the PnL**, because the daily price shape
+  repeats from one day to the next. The models' value lies in the remaining 6%.
+* **sMAPE is high for every model** because of hours with prices near zero or negative,
+  where relative errors explode; rMAE is the metric to compare.
+
+Reproduce with `make real && make plot-real` (needs internet; about 10 minutes, the API is
+rate-limited).
+
+### Synthetic data (179-day walk-forward test)
 
 | Model | MAE (EUR/MWh) | RMSE | sMAPE | rMAE vs naive | Battery PnL (EUR) | Capture ratio |
 |---|---:|---:|---:|---:|---:|---:|
@@ -78,8 +102,11 @@ expensive hours correctly.
 | Ridge | 17.3 | 21.8 | 18.1% | 0.33 | 35,635 | 96.6% |
 | Gradient boosting | **15.1** | **20.1** | **13.1%** | **0.29** | **36,031** | **97.6%** |
 
-Settings: 365-day rolling training window, weekly retraining, 1 MW / 2 MWh battery with
-90% round-trip efficiency. Reproduce with `make backtest && make plot`.
+The synthetic fundamentals are perfect "forecasts" and the price is generated from them, so
+errors are far smaller than on real data. Reproduce offline with `make backtest && make plot`.
+
+Settings for both: 365-day rolling training window, weekly retraining, 1 MW / 2 MWh battery
+with 90% round-trip efficiency.
 
 ## Quick start
 

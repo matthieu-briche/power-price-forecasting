@@ -11,3 +11,7 @@ dist/
 reports/*
 !reports/backtest.png
 !reports/metrics.csv
+!reports/real/
+reports/real/*
+!reports/real/backtest.png
+!reports/real/metrics.csv

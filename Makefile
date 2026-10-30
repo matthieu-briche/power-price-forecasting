@@ -1,4 +1,4 @@
-.PHONY: install lint test backtest real plot docker up down
+.PHONY: install lint test backtest real plot plot-real docker up down
 
 install:
 	pip install -e ".[dev]"
@@ -17,6 +17,9 @@ real:
 
 plot:
 	python scripts/plot_report.py reports
+
+plot-real:
+	python scripts/plot_report.py reports/real
 
 docker:
 	docker build -t powerfc .

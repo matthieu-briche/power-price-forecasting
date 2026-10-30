@@ -34,8 +34,8 @@ def generate_synthetic(start: str = "2023-01-01", days: int = 730, seed: int = 4
     idx_local = pd.date_range(start, periods=days * 24, freq="h", tz=LOCAL_TZ)
     n = len(idx_local)
     hour = idx_local.hour.to_numpy()
-    dow = idx_local.dayofweek.to_numpy()
-    doy = idx_local.dayofyear.to_numpy()
+    dow = idx_local.day_of_week.to_numpy()
+    doy = idx_local.day_of_year.to_numpy()
     day_id = (idx_local.normalize() - idx_local.normalize()[0]).days.to_numpy()
 
     season = np.cos(2 * np.pi * (doy - 15) / 365.25)  # +1 mid-winter, -1 mid-summer
